@@ -1,0 +1,544 @@
+/* ==========================================================
+   VARIABEL (ubah di sini untuk menyetel tampilan)
+========================================================== */
+
+:root {
+  --navy:        #172b4d;
+  --blue:        #244a7c;
+  --sky:         #4f7cac;
+  --gold:        #ffd166;
+
+  /* Panel kaca transparan di tiap slide.
+     Kecilkan alpha (0.78) agar lebih transparan, besarkan agar lebih solid. */
+  --glass-bg:     rgba(255, 255, 255, 0.78);
+  --glass-border: rgba(255, 255, 255, 0.65);
+  --glass-blur:   14px;
+
+  --zoom-dur:     .9s;
+  --ease:         cubic-bezier(.22, 1, .36, 1);
+}
+
+
+/* ==========================================================
+   GLOBAL (FULLSCREEN, TANPA PADDING/MARGIN LUAR)
+========================================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;              /* yang di-scroll adalah #story-deck */
+  background: var(--navy);
+  color: #1f2937;
+  font-family: "Inter", Arial, sans-serif;
+}
+
+.container-fluid {
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  max-width: none !important;
+}
+
+
+/* ==========================================================
+   DECK = AREA SCROLL ASLI (mouse, trackpad, sentuh, keyboard)
+========================================================== */
+
+#story-deck {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;   /* berhenti pas di tiap slide */
+  scroll-behavior: smooth;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  outline: none;
+}
+
+/* Setiap anak langsung #story-deck = 1 slide */
+#story-deck > div {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;              /* slide minimal setinggi layar */
+  margin: 0 !important;
+  scroll-snap-align: start;
+  overflow-x: clip;
+}
+
+
+/* ==========================================================
+   ZOOM IN / ZOOM OUT ANTAR SLIDE
+   (kelas .active / .is-before / .is-after diatur story.js)
+========================================================== */
+
+#story-deck.js-ready > div > *,
+#story-deck.js-ready > div.story-section::before {
+  transition:
+    transform var(--zoom-dur) var(--ease),
+    opacity   var(--zoom-dur) var(--ease);
+  transition-delay: 0s;
+}
+
+/* slide di bawah (akan datang): kecil -> membesar (zoom in) */
+#story-deck.js-ready > div.is-after > *,
+#story-deck.js-ready > div.is-after.story-section::before {
+  transform: scale(.88);
+  opacity: 0;
+}
+
+/* slide di atas (sudah lewat): membesar -> hilang (zoom out) */
+#story-deck.js-ready > div.is-before > *,
+#story-deck.js-ready > div.is-before.story-section::before {
+  transform: scale(1.1);
+  opacity: 0;
+}
+
+/* slide aktif */
+#story-deck.js-ready > div.active > *,
+#story-deck.js-ready > div.active.story-section::before {
+  transform: none;
+  opacity: 1;
+}
+
+/* isi slide muncul berurutan setelah slide aktif */
+#story-deck.js-ready > div.active > *:nth-child(1) { transition-delay: .10s; }
+#story-deck.js-ready > div.active > *:nth-child(2) { transition-delay: .20s; }
+#story-deck.js-ready > div.active > *:nth-child(3) { transition-delay: .30s; }
+#story-deck.js-ready > div.active > *:nth-child(4) { transition-delay: .40s; }
+#story-deck.js-ready > div.active > *:nth-child(n+5) { transition-delay: .50s; }
+
+/* isi hero naik bertahap */
+.hero-content > * {
+  transition: transform 1s var(--ease), opacity 1s var(--ease);
+}
+#story-deck.js-ready > div:not(.active) .hero-content > * {
+  opacity: 0;
+  transform: translateY(26px);
+}
+#story-deck.js-ready > div.active .hero-content > *:nth-child(1) { transition-delay: .15s; }
+#story-deck.js-ready > div.active .hero-content > *:nth-child(2) { transition-delay: .30s; }
+#story-deck.js-ready > div.active .hero-content > *:nth-child(3) { transition-delay: .45s; }
+#story-deck.js-ready > div.active .hero-content > *:nth-child(4) { transition-delay: .60s; }
+
+@media (prefers-reduced-motion: reduce) {
+  #story-deck { scroll-behavior: auto; }
+  #story-deck.js-ready > div > *,
+  #story-deck.js-ready > div.story-section::before,
+  .hero-content > * {
+    transition: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}
+
+
+/* ==========================================================
+   HERO
+========================================================== */
+
+.hero-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6vh 10%;
+  color: white;
+
+  background:
+    radial-gradient(55% 45% at 12% 15%, rgba(79,124,172,.55), transparent 70%),
+    radial-gradient(45% 45% at 88% 85%, rgba(255,209,102,.22), transparent 70%),
+    linear-gradient(135deg, #172b4d 0%, #244a7c 55%, #4f7cac 100%);
+  background-size: 140% 140%;
+  animation: drift 22s ease-in-out infinite alternate;
+}
+
+@keyframes drift {
+  from { background-position: 0% 0%; }
+  to   { background-position: 100% 100%; }
+}
+
+.hero-content {
+  max-width: 1000px;
+  text-align: center;
+}
+
+.hero-content h1 {
+  font-size: clamp(38px, 7vw, 82px);
+  font-weight: 900;
+  letter-spacing: -2px;
+  margin-bottom: 20px;
+}
+
+.hero-content h2 {
+  font-size: clamp(20px, 3vw, 36px);
+  font-weight: 400;
+  margin-bottom: 35px;
+}
+
+.hero-description {
+  font-size: clamp(15px, 1.4vw, 19px);
+  line-height: 1.8;
+  max-width: 850px;
+  margin: auto;
+  opacity: 0.92;
+}
+
+
+/* ==========================================================
+   STAT
+========================================================== */
+
+.hero-stat {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  margin-top: 50px;
+  flex-wrap: wrap;
+}
+
+.stat-box {
+  min-width: 170px;
+  padding: 25px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 18px;
+  backdrop-filter: blur(10px);
+}
+
+.stat-box h3 { font-size: 38px; font-weight: 800; margin: 0; }
+.stat-box p  { margin: 5px 0 0; }
+
+
+/* ==========================================================
+   STORY SLIDE: LATAR GRADIEN + PANEL KACA
+========================================================== */
+
+.story-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  /* isi dibatasi 1250px & rata tengah; ruang ekstra untuk panel kaca */
+  padding:
+    calc(4vh + 34px)
+    max(34px, calc((100% - 1250px) / 2))
+    calc(4vh + 34px);
+
+  background-size: 150% 150%;
+  animation: drift 26s ease-in-out infinite alternate;
+}
+
+/* Variasi warna latar tiap slide (berulang 4 warna) */
+#story-deck > .story-section:nth-child(4n+2) {
+  background-image:
+    radial-gradient(55% 50% at 10% 10%, rgba(79,124,172,.60), transparent 70%),
+    radial-gradient(50% 50% at 90% 90%, rgba(255,209,102,.28), transparent 70%),
+    linear-gradient(160deg, #172b4d, #2d5a8e);
+}
+#story-deck > .story-section:nth-child(4n+3) {
+  background-image:
+    radial-gradient(55% 50% at 90% 10%, rgba(94,196,182,.50), transparent 70%),
+    radial-gradient(50% 50% at 10% 90%, rgba(79,124,172,.40), transparent 70%),
+    linear-gradient(160deg, #0f3d4c, #1d7a85);
+}
+#story-deck > .story-section:nth-child(4n+4) {
+  background-image:
+    radial-gradient(55% 50% at 15% 85%, rgba(160,140,255,.45), transparent 70%),
+    radial-gradient(50% 50% at 85% 15%, rgba(79,124,172,.45), transparent 70%),
+    linear-gradient(160deg, #1d2a5c, #4a5cab);
+}
+#story-deck > .story-section:nth-child(4n+5) {
+  background-image:
+    radial-gradient(55% 50% at 85% 85%, rgba(255,170,120,.38), transparent 70%),
+    radial-gradient(50% 50% at 10% 15%, rgba(79,124,172,.50), transparent 70%),
+    linear-gradient(160deg, #26324f, #4e6a94);
+}
+
+/* Panel kaca transparan di belakang isi */
+.story-section::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 4vh max(14px, calc((100% - 1330px) / 2));
+  border-radius: 28px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 24px 64px rgba(8, 20, 50, 0.35);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  pointer-events: none;
+}
+
+.story-section > * {
+  position: relative;
+  z-index: 1;
+}
+
+.story-section h2 {
+  font-size: clamp(24px, 3.4vw, 42px);
+  font-weight: 800;
+  color: var(--navy);
+  margin-bottom: 16px;
+}
+
+.story-section > p {
+  font-size: clamp(15px, 1.4vw, 18px);
+  line-height: 1.7;
+  max-width: 900px;
+}
+
+/* row Bootstrap punya margin negatif -> bikin scroll horizontal */
+#story-deck .row { margin-left: 0; margin-right: 0; }
+
+
+/* ==========================================================
+   GRAFIK, PETA, TABEL = KARTU DI ATAS PANEL KACA
+========================================================== */
+
+#story-deck .html-widget {
+  min-height: 280px;
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.92);
+  box-shadow: 0 8px 26px rgba(10, 25, 60, 0.15);
+}
+
+#story-deck .dataTables_wrapper {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.92);
+  box-shadow: 0 8px 26px rgba(10, 25, 60, 0.15);
+}
+
+.info-card {
+  background: rgba(255,255,255,0.9);
+  border: 1px solid rgba(255,255,255,0.8);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.10);
+}
+
+.info-card h3  { color: var(--navy); font-weight: 800; }
+.info-card li  { padding: 8px 0; }
+
+
+/* ==========================================================
+   WARNING / SELECTED / SOURCE
+========================================================== */
+
+.warning-box {
+  padding: 30px;
+  border-radius: 15px;
+  background: #fff3cd;
+  color: #664d03;
+  border: 1px solid #ffecb5;
+}
+
+.selected-info {
+  margin-top: 20px;
+  padding: 20px;
+  background: #e9f2ff;
+  border-left: 5px solid var(--blue);
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.source-text {
+  margin-top: 18px;
+  color: #5b6472;
+  font-size: 13px;
+  font-style: italic;
+}
+
+
+/* ==========================================================
+   CLOSING
+========================================================== */
+
+.closing-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 6vh 15%;
+  color: white;
+
+  background:
+    radial-gradient(55% 45% at 85% 15%, rgba(79,124,172,.50), transparent 70%),
+    radial-gradient(45% 45% at 10% 90%, rgba(255,209,102,.20), transparent 70%),
+    linear-gradient(160deg, #172b4d, #1f3b66);
+  background-size: 140% 140%;
+  animation: drift 22s ease-in-out infinite alternate;
+}
+
+.closing-section h2 {
+  font-size: clamp(30px, 5vw, 60px);
+  font-weight: 900;
+  margin-bottom: 30px;
+}
+
+.closing-section p {
+  max-width: 800px;
+  font-size: clamp(15px, 1.4vw, 19px);
+  line-height: 1.8;
+}
+
+.closing-section .source-text { color: rgba(255,255,255,0.7); }
+
+.plotly { width: 100% !important; }
+
+
+/* ==========================================================
+   PETA: scroll tidak "tersangkut" di peta
+========================================================== */
+
+@media (hover: hover) {
+  .leaflet-container::after {
+    content: "Klik peta, lalu scroll untuk zoom";
+    position: absolute;
+    left: 50%;
+    bottom: 14px;
+    transform: translateX(-50%);
+    z-index: 1000;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: rgba(23, 43, 77, .88);
+    color: #fff;
+    font-size: 12px;
+    opacity: 0;
+    transition: opacity .3s;
+    pointer-events: none;
+  }
+  .leaflet-container:hover:not(.map-active)::after { opacity: 1; }
+}
+
+/* layar sentuh: geser vertikal = scroll halaman, geser horizontal = geser peta */
+@media (pointer: coarse) {
+  .leaflet-container { touch-action: pan-y !important; }
+}
+
+
+/* ==========================================================
+   NAVIGASI (progress, titik, tombol, penghitung)
+========================================================== */
+
+.story-progress {
+  position: fixed;
+  top: 0; left: 0;
+  height: 4px;
+  width: 0;
+  background: linear-gradient(90deg, var(--sky), var(--gold));
+  z-index: 1000;
+}
+
+.story-dots {
+  position: fixed;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 1000;
+}
+
+.story-dots button {
+  width: 11px;
+  height: 11px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: rgba(255,255,255,.25);
+  box-shadow: 0 0 0 1px rgba(23,43,77,.35);
+  cursor: pointer;
+  transition: transform .3s, background .3s;
+}
+
+.story-dots button.active { background: var(--gold); transform: scale(1.4); }
+
+.story-nav {
+  position: fixed;
+  right: 14px;
+  bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 1000;
+}
+
+.story-nav button {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.4);
+  background: rgba(23,43,77,.88);
+  color: #fff;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0,0,0,.25);
+  transition: transform .2s, opacity .3s;
+}
+
+.story-nav button:hover    { transform: scale(1.08); }
+.story-nav button:disabled { opacity: .3; cursor: default; transform: none; }
+
+.story-count {
+  min-width: 52px;
+  padding: 6px 10px;
+  border-radius: 20px;
+  background: rgba(23,43,77,.88);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+}
+
+
+/* ==========================================================
+   RESPONSIVE (HANDPHONE / TABLET)
+========================================================== */
+
+@media (max-width: 768px) {
+
+  .hero-section    { padding: 5vh 20px; }
+  .closing-section { padding: 5vh 22px; }
+
+  .story-section {
+    padding: calc(2.5vh + 18px) 22px;
+  }
+
+  .story-section::before {
+    inset: 2.5vh 8px;
+    border-radius: 20px;
+  }
+
+  .hero-description { line-height: 1.7; }
+
+  .hero-stat { gap: 10px; margin-top: 30px; flex-wrap: nowrap; }
+
+  .stat-box {
+    min-width: 0;
+    flex: 1 1 0;
+    padding: 14px 6px;
+    border-radius: 14px;
+  }
+
+  .stat-box h3 { font-size: 24px; }
+  .stat-box p  { font-size: 11px; }
+
+  .info-card { padding: 18px; border-radius: 16px; }
+
+  .story-dots { display: none; }
+  .story-nav  { right: 10px; bottom: 10px; }
+  .story-nav button { width: 38px; height: 38px; }
+}
