@@ -238,8 +238,6 @@ WebStory/
     └── ...
 ```
 
-Sesuaikan struktur folder dengan lokasi file sebenarnya di repository.
-
 ## 9. Menjalankan Aplikasi
 
 Pastikan R dan RStudio telah terpasang.
@@ -344,39 +342,3 @@ Dataset master mempertahankan cakupan 514 kabupaten/kota.
 Meskipun proyek menggunakan label periode **2024**, periode referensi
 masing-masing indikator mengikuti definisi dan periode pengukuran BPS
 pada sumber aslinya.
-
-## 14. Penggunaan AI
-
-AI digunakan sebagai alat bantu dalam:
-
--   debugging dan penyusunan kode,
--   pengembangan ide visualisasi,
--   dokumentasi,
--   serta interpretasi teknis.
-
-Keputusan terkait data, analisis, visualisasi, dan hasil akhir tetap
-diperiksa dan dipertanggungjawabkan oleh penulis.
-
-## 15. Demo dan Repository
-
-**Web Story:**\
-`[MASUKKAN URL WEB STORY]`
-
-**GitHub Repository:**\
-`[MASUKKAN URL REPOSITORY]`
-
-## 16. Author
-
-**Nama:** Nama Mahasiswa\
-**NIM:** NIM\
-**Kelas:** Kelas
-
-**Politeknik Statistika STIS --- 2026**
-
-## 17. Lisensi
-
-Proyek ini dibuat untuk keperluan akademik pada mata kuliah
-**Visualisasi Data dan Informasi**.
-
-Data statistik utama bersumber dari **Badan Pusat Statistik (BPS)** dan
-data geospasial digunakan sebagai data pendukung untuk visualisasi.
